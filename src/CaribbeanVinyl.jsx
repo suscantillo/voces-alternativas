@@ -143,7 +143,108 @@ const VirtualMixer = () => {
         type: "song",
         url: "/songs/LA ZENAIDA - Armando Hernandez.mp3"
       },
-      // ... resto de las canciones ...
+      {
+        id: "s17",
+        name: "La Pollera colora - Juan Madera",
+        type: "song",
+        url: "/songs/La Pollera colora - Juan Madera.mp3"
+      },
+      {
+        id: "s18",
+        name: "La Puya",
+        type: "song",
+        url: "/songs/La Puya.mp3"
+      },
+      {
+        id: "s19",
+        name: "La Reina de los Jardines - El Sexteto Tabalá",
+        type: "song",
+        url: "/songs/La Reina de los Jardines - El Sexteto Tabalá.mp3"
+      },
+      {
+        id: "s20",
+        name: "La Tierra del Olvido - Carlos Vives, Coral Group, Maluma, Fanny Lu, Andrea Echeverri, Cholo Valderrama, Herencia de Timbiquí, Fonseca",
+        type: "song",
+        url: "/songs/La Tierra del Olvido - Carlos Vives, Coral Group, Maluma, Fanny Lu, Andrea Echeverri, Cholo Valderrama, Herencia de Timbiquí, Fonseca.mp3"
+      },
+      {
+        id: "s21",
+        name: "La Verdolaga - Totó la Moposina",
+        type: "song",
+        url: "/songs/La Verdolaga - Totó la Moposina.mp3"
+      },
+      {
+        id: "s22",
+        name: "La grosella - Damar Guerrero",
+        type: "song",
+        url: "/songs/La grosella - Damar Guerrero.mp3"
+      },
+      {
+        id: "s23",
+        name: "Lloraras - Oscar D_León",
+        type: "song",
+        url: "/songs/Lloraras - Oscar D_León.mp3"
+      },
+      {
+        id: "s24",
+        name: "Los Caminos De La Vida - Los Diablitos",
+        type: "song",
+        url: "/songs/Los Caminos De La Vida - Los Diablitos.mp3"
+      },
+      {
+        id: "s25",
+        name: "Navigator - Ragga Tonseh",
+        type: "song",
+        url: "/songs/Navigator - Ragga Tonseh.mp3"
+      },
+      {
+        id: "s26",
+        name: "Orito Cantora, Jenn del Tambó - Bullerengue para un Ángel",
+        type: "song",
+        url: "/songs/Orito Cantora, Jenn del Tambó - Bullerengue para un Ángel.mp3"
+      },
+      {
+        id: "s27",
+        name: "Pacifico Soy - Electropicomusic",
+        type: "song",
+        url: "/songs/Pacifico Soy - Electropicomusic.mp3"
+      },
+      {
+        id: "s28",
+        name: "Prende La Vela -  Totó la Momposina",
+        type: "song",
+        url: "/songs/Prende La Vela -  Totó la Momposina.mp3"
+      },
+      {
+        id: "s29",
+        name: "The Satanic Majesties Request, Johann Daccaret - Sister_s Blues",
+        type: "song",
+        url: "/songs/The Satanic Majesties Request, Johann Daccaret - Sister_s Blues.mp3"
+      },
+      {
+        id: "s30",
+        name: "Todo Le Luce - Quendambuxx",
+        type: "song",
+        url: "/songs/Todo Le Luce - Quendambuxx.mp3"
+      },
+      {
+        id: "s31",
+        name: "Trastocando - Humo Azul",
+        type: "song",
+        url: "/songs/Trastocando - Humo Azul.mp3"
+      },
+      {
+        id: "s32",
+        name: "Zaider - Te Va Doler",
+        type: "song",
+        url: "/songs/Zaider - Te Va Doler.mp3"
+      },
+      {
+        id: "s33",
+        name: "Zouke Zouke - Pépé Kallé, Nyboma",
+        type: "song",
+        url: "/songs/Zouke Zouke - Pépé Kallé, Nyboma.mp3"
+      }
     ],
     loops: [
       {
@@ -158,8 +259,97 @@ const VirtualMixer = () => {
         type: "loop",
         url: "/loops/@Dj Neto.mp3"
       },
-      // ... resto de los loops ...
-    ]
+      {
+        id: "l3",
+        name: "@Drum Skin(1)",
+        type: "loop",
+        url: "/loops/@Drum Skin(1).mp3"
+      },
+      {
+        id: "l4",
+        name: "@Drum Skin",
+        type: "loop",
+        url: "/loops/@Drum Skin.mp3"
+      },
+      {
+        id: "l5",
+        name: "@J Miller (2)",
+        type: "loop",
+        url: "/loops/@J Miller (2).mp3"
+      },
+      {
+        id: "l6",
+        name: "@J Miller (3)",
+        type: "loop",
+        url: "/loops/@J Miller (3).mp3"
+      },
+      {
+        id: "l7",
+        name: "@J Miller (4)",
+        type: "loop",
+        url: "/loops/@J Miller (4).mp3"
+      },
+      {
+        id: "l8",
+        name: "@J Miller",
+        type: "loop",
+        url: "/loops/@J Miller.mp3"
+      },
+      {
+        id: "l9",
+        name: "@Negusfirst",
+        type: "loop",
+        url: "/loops/@Negusfirst.mp3"
+      },
+      {
+        id: "l10",
+        name: "@Negusfirst.mp3 (2)",
+        type: "loop",
+        url: "/loops/@Negusfirst.mp3 (2).mp3"
+      },
+      {
+        id: "l11",
+        name: "@SebasTorresMusic",
+        type: "loop",
+        url: "/loops/@SebasTorresMusic.mp3"
+      },
+      {
+        id: "l12",
+        name: "@choppedbyjodi",
+        type: "loop",
+        url: "/loops/@choppedbyjodi.mp3"
+      },
+      {
+        id: "l13",
+        name: "@gloccas",
+        type: "loop",
+        url: "/loops/@gloccas.mp3"
+      },
+      {
+        id: "l14",
+        name: "@moonbladex",
+        type: "loop",
+        url: "/loops/@moonbladex.mp3"
+      },
+      {
+        id: "l15",
+        name: "@moonbladex.mp3 (2)",
+        type: "loop",
+        url: "/loops/@moonbladex.mp3 (2).mp3"
+      },
+      {
+        id: "l16",
+        name: "@prettyboyaust",
+        type: "loop",
+        url: "/loops/@prettyboyaust.mp3"
+      },
+      {
+        id: "l17",
+        name: "@prodnewdawn",
+        type: "loop",
+        url: "/loops/@prodnewdawn.mp3"
+      }
+]
   };
 
   // Inicialización y precarga
