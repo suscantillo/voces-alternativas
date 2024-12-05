@@ -6,6 +6,9 @@ const VirtualMixer = () => {
   const [activeTab, setActiveTab] = useState('songs');
   const [activeTracks, setActiveTracks] = useState([]);
   const [rotation, setRotation] = useState(0);
+  const [audioStates, setAudioStates] = useState({});
+  const [loadedTracks, setLoadedTracks] = useState({});
+  const [loading, setLoading] = useState({});
   const audioContext = useRef(null);
   const audioSources = useRef({});
   const gainNodes = useRef({});
@@ -317,7 +320,30 @@ const VirtualMixer = () => {
 ]
   };
   
+  useEffect(() => {
+    const preloadPopularTracks = async () => {
+      const popularTracks = tracks.songs.slice(0, 5); // Primeros 5 tracks
+      for (const track of popularTracks) {
+        await preloadAudioBuffer(track);
+      }
+    };
+    
+    preloadPopularTracks();
+  }, []);
   
+  // Limpieza de memoria
+  useEffect(() => {
+    return () => {
+      Object.values(audioSources.current).forEach(source => {
+        try {
+          source.stop();
+        } catch (e) {}
+      });
+      audioSources.current = {};
+      gainNodes.current = {};
+      setLoadedTracks({});
+    };
+  }, []);
 
   useEffect(() => {
     audioContext.current = new (window.AudioContext || window.webkitAudioContext)();
@@ -342,13 +368,31 @@ const VirtualMixer = () => {
     return () => cancelAnimationFrame(animationFrame);
   }, [isPlaying]);
 
+
+  const preloadAudioBuffer = async (track) => {
+    if (loadedTracks[track.id]) return loadedTracks[track.id];
+    
+    try {
+      const response = await fetch(track.url);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await audioContext.current.decodeAudioData(arrayBuffer);
+      setLoadedTracks(prev => ({ ...prev, [track.id]: audioBuffer }));
+      return audioBuffer;
+    } catch (error) {
+      console.error('Error preloading track:', error);
+      return null;
+    }
+  };
+
+  
+
   const loadTrack = async (track) => {
     try {
       if (!audioContext.current) return;
       
-      const response = await fetch(track.url);
-      const arrayBuffer = await response.arrayBuffer();
-      const audioBuffer = await audioContext.current.decodeAudioData(arrayBuffer);
+      // Usar buffer precargado o cargarlo si no existe
+      const audioBuffer = loadedTracks[track.id] || await preloadAudioBuffer(track);
+      if (!audioBuffer) return;
       
       const source = audioContext.current.createBufferSource();
       const gainNode = audioContext.current.createGain();
@@ -360,7 +404,6 @@ const VirtualMixer = () => {
       
       audioSources.current[track.id] = source;
       gainNodes.current[track.id] = gainNode;
-      gainNode.gain.value = 0.75; // Set initial volume
       
       if (isPlaying) {
         source.start(0);
@@ -371,7 +414,6 @@ const VirtualMixer = () => {
       console.error('Error loading track:', error);
     }
   };
-
   const stopAllTracks = () => {
     Object.values(audioSources.current).forEach(source => {
       try {
@@ -411,16 +453,49 @@ const VirtualMixer = () => {
       }
     });
   };
+  
   const togglePlayback = () => {
     if (!isPlaying) {
       audioContext.current.resume();
-      startAllTracks();
+      activeTracks.forEach(track => {
+        const source = audioSources.current[track.id];
+        if (source) {
+          if (!audioStates[track.id]) {
+            // Si es primera vez, iniciar desde 0
+            source.start(0);
+          } else {
+            // Crear nuevo source pero mantener la posición
+            const newSource = audioContext.current.createBufferSource();
+            newSource.buffer = source.buffer;
+            newSource.loop = source.loop;
+            newSource.connect(gainNodes.current[track.id]);
+            
+            const startOffset = audioStates[track.id].offset;
+            newSource.start(0, startOffset);
+            audioSources.current[track.id] = newSource;
+          }
+        }
+      });
     } else {
-      stopAllTracks();
+      // Guardar estados actuales antes de detener
+      const currentTime = audioContext.current.currentTime;
+      const states = {};
+      
+      activeTracks.forEach(track => {
+        const source = audioSources.current[track.id];
+        if (source) {
+          states[track.id] = {
+            offset: (currentTime - source.startTime) % source.buffer.duration,
+            volume: gainNodes.current[track.id].gain.value
+          };
+          source.stop();
+        }
+      });
+      
+      setAudioStates(states);
     }
     setIsPlaying(!isPlaying);
   };
- 
 
  
   const removeTrack = (trackId) => {
