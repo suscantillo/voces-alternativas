@@ -45,6 +45,46 @@ const VirtualMixer = () => {
   const audioContext = useRef(null);
   const audioSources = useRef({});
   const gainNodes = useRef({});
+
+  // Añade esta función después de los estados
+const loadTrackInChunks = async (track) => {
+  if (!audioContext.current) return null;
+
+  try {
+    const response = await fetch(track.url);
+    const contentLength = response.headers.get('Content-Length');
+    const total = parseInt(contentLength, 10);
+    const reader = response.body.getReader();
+    const chunks = [];
+    let loadedSize = 0;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      chunks.push(value);
+      loadedSize += value.length;
+      // Actualizar progreso para este track
+      const progress = (loadedSize / total) * 100;
+      console.log(`Loading ${track.name}: ${Math.round(progress)}%`);
+    }
+
+    // Combinar chunks en un único buffer
+    const completeBuffer = new Uint8Array(loadedSize);
+    let position = 0;
+    for (const chunk of chunks) {
+      completeBuffer.set(chunk, position);
+      position += chunk.length;
+    }
+
+    // Decodificar el buffer completo
+    const audioBuffer = await audioContext.current.decodeAudioData(completeBuffer.buffer);
+    return audioBuffer;
+  } catch (error) {
+    console.error('Error loading track:', error);
+    return null;
+  }
+};
   const tracks = {
     songs: [
       {
@@ -353,32 +393,57 @@ const VirtualMixer = () => {
   };
 
   // Inicialización y precarga
-  useEffect(() => {
-    const initializeAudio = async () => {
-      audioContext.current = new (window.AudioContext || window.webkitAudioContext)();
-      
-      // Calcular total de tracks para el progreso
-      const totalTracks = [...tracks.songs, ...tracks.loops];
-      let loadedCount = 0;
+  // Reemplaza el useEffect de inicialización actual
+useEffect(() => {
+  const initializeAudio = async () => {
+    audioContext.current = new (window.AudioContext || window.webkitAudioContext)();
+    
+    // Separar tracks en prioritarios y secundarios
+    const priorityTracks = tracks.songs.slice(0, 5); // Primeras 5 canciones
+    const remainingTracks = [
+      ...tracks.songs.slice(5),
+      ...tracks.loops
+    ];
 
-      // Precargar todos los tracks
-      for (const track of totalTracks) {
-        await preloadAudioBuffer(track);
+    // Cargar tracks prioritarios
+    let loadedCount = 0;
+    const totalTracks = tracks.songs.length + tracks.loops.length;
+
+    // Cargar prioritarios primero
+    for (const track of priorityTracks) {
+      const audioBuffer = await loadTrackInChunks(track);
+      if (audioBuffer) {
+        setLoadedTracks(prev => ({ ...prev, [track.id]: audioBuffer }));
         loadedCount++;
-        setLoadingProgress((loadedCount / totalTracks.length) * 100);
+        setLoadingProgress((loadedCount / totalTracks) * 100);
       }
+    }
 
-      setLoading(false);
-    };
+    // Permitir el uso de la app después de cargar los prioritarios
+    setLoading(false);
 
-    initializeAudio();
-
-    return () => {
-      if (audioContext.current) {
-        audioContext.current.close();
+    // Cargar el resto en segundo plano
+    setTimeout(async () => {
+      for (const track of remainingTracks) {
+        const audioBuffer = await loadTrackInChunks(track);
+        if (audioBuffer) {
+          setLoadedTracks(prev => ({ ...prev, [track.id]: audioBuffer }));
+          loadedCount++;
+          // No actualizamos loadingProgress aquí para no confundir al usuario
+        }
       }
-    };
-  }, []);
+    }, 1000);
+  };
+
+  initializeAudio();
+
+  return () => {
+    if (audioContext.current) {
+      audioContext.current.close();
+    }
+  };
+}, []);
+
 
   // Mantener la animación del disco durante la carga
   useEffect(() => {
@@ -415,9 +480,15 @@ const VirtualMixer = () => {
     try {
       if (!audioContext.current) return;
       
-      const audioBuffer = loadedTracks[track.id] || await preloadAudioBuffer(track);
-      if (!audioBuffer) return;
+      // Usar buffer precargado o cargarlo si no existe
+      let audioBuffer = loadedTracks[track.id];
       
+      if (!audioBuffer) {
+        audioBuffer = await loadTrackInChunks(track);
+        if (!audioBuffer) return;
+        setLoadedTracks(prev => ({ ...prev, [track.id]: audioBuffer }));
+      }
+  
       const source = audioContext.current.createBufferSource();
       const gainNode = audioContext.current.createGain();
       
